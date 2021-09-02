@@ -1,88 +1,115 @@
 
-
-from google.colab import drive
-drive.mount("/content/drive")
-
-# importing libraries
 import nltk
+from nltk.corpus import  twitter_samples
 import matplotlib.pyplot as plt
-import pandas as pd
+import random
 
-# Raw Text Analysis
-random_text = """Discussing climate, sustainability, and preserving the natural world with President @EmmanuelMacron today in Paris. #BezosEarthFund #ClimatePledge"""
+nltk.download('twitter_samples')
 
-import re
-import string
-from nltk.corpus import stopwords
-from nltk.stem import PorterStemmer
-from nltk.tokenize import TweetTokenizer
+all_positive_tweets = twitter_samples.strings('positive_tweets.json')
+all_negative_tweets = twitter_samples.strings('negative_tweets.json')
 
-remove_link_text = re.sub(r'https?:\/\/.*[\r\n]*', '', random_text)
-remove_link_text = re.sub(r'#', '', remove_link_text)
-print(remove_link_text)
+print('Number of positive tweets: ', len(all_positive_tweets))
+print('Number of negative tweets: ', len(all_negative_tweets))
 
-print('\033[92m' + random_text)
-print('\033[92m' + remove_link_text)
+print('\nThe type of all_positive_tweets is: ', type(all_positive_tweets))
+print('The type of a tweet entry is: ', type(all_negative_tweets[0]))
 
-from nltk.tokenize import sent_tokenize
-text="""Hello Mr. steve, how you doing? whats up? The weather is great, and city is awesome. how you doing? The sky is pinkish-blue. You shouldn't eat cardboard, how you doing?"""
-# download punkt
-nltk.download("punkt")
-tokenized_text=sent_tokenize(text)
-print(tokenized_text)
+fig = plt.figure(figsize=(5, 5))
+# labels for the classes
+labels = 'ML-BSB-Lec', 'ML-HAP-Lec','ML-HAP-Lab'
+# Sizes for each slide
+sizes = [40, 35, 25]
+# Declare pie chart, where the slices will be ordered and plotted counter-clockwise:
+plt.pie(sizes, labels=labels, autopct='%.2f%%',
+shadow=True, startangle=90)
+#autopct enables you to display the percent value using Python string formatting.
+#For example, if autopct='%.2f', then for each pie wedge, the format string is '%.2f' and
 
-# breaks paregraph into words
-from nltk.tokenize import word_tokenize
-tokenized_word=word_tokenize(text)
-print(tokenized_word)
-
-# frequency distribution
-from nltk.probability import FreqDist
-fdist = FreqDist(tokenized_word)
-fdist.most_common(4)
-# Frequency Distribution Plot
-import matplotlib.pyplot as plt
-fdist.plot(30, cumulative = False, color = "green")
+# Equal aspect ratio ensures that pie is drawn as a circle.
+plt.axis('equal')
+# Display the chart
 plt.show()
 
-# stop words
-from nltk.corpus import stopwords
-# download stopwords
-nltk.download("stopwords")
-stop_words = set(stopwords.words("english"))
-print(stop_words)
+# Declare a figure with a custom size
+fig = plt.figure(figsize=(5, 5))
+# labels for the two classes
+labels = 'Positives', 'Negative'
+# Sizes for each slide
+sizes = [len(all_positive_tweets), len(all_negative_tweets)]
+# Declare pie chart, where the slices will be ordered and plotted counter-clockwise:
+plt.pie(sizes, labels=labels, autopct='%1.1f%%',
+shadow=True, startangle=90)
+# Equal aspect ratio ensures that pie is drawn as a circle.
+plt.axis('equal')
+# Display the chart
+plt.show()
 
-filtered_sent=[]
-for w in tokenized_word:
-    if w not in stop_words:
-        filtered_sent.append(w)
-print("Tokenized Sentence:",tokenized_word)
-print("Filterd Sentence:",filtered_sent)
+# print positive in greeen
+print('\033[92m' + all_positive_tweets[random.randint(0,5000)])
+# print negative in red
+print('\033[91m' + all_negative_tweets[random.randint(0,5000)])
 
-# stemming
-from nltk.stem import PorterStemmer
-from nltk.tokenize import sent_tokenize, word_tokenize
+# Our selected sample
+tweet = all_positive_tweets[2277]
+print(tweet)
 
-ps = PorterStemmer()
+# download the stopwords from NLTK
+nltk.download('stopwords')
 
-stemmed_words=[]
-for w in filtered_sent:
-    stemmed_words.append(ps.stem(w))
+import re # library for regular expression operations
+import string # for string operations
+from nltk.corpus import stopwords # module for stop words that come with NLTK
+from nltk.stem import PorterStemmer # module for stemming
+from nltk.tokenize import TweetTokenizer # module for tokenizing strings
 
-print("Filtered Sentence:",filtered_sent)
-print("Stemmed Sentence:",stemmed_words)
+print('\033[92m' + tweet)
+print('\033[94m')
+# remove hyperlinks
+tweet2 = re.sub(r'https?:\/\/.*[\r\n]*', '', tweet)
+# remove hashtags
+# only removing the hash # sign from the word
+tweet2 = re.sub(r'#', '', tweet2)
+print(tweet2)
 
-#Lexicon Normalization
-#performing stemming and Lemmatization
+print()
+print('\033[92m' + tweet2)
+print('\033[94m')
+# instantiate tokenizer class
+tokenizer = TweetTokenizer(preserve_case=False)
+# tokenize tweets
+tweet_tokens = tokenizer.tokenize(tweet2)
+print()
+print('Tokenized string:')
+print(tweet_tokens)
+#Import the english stop words list from NLTK
+stopwords_english = stopwords.words('english')
+print('Stop words\n')
+print(stopwords_english)
+print('\nPunctuation\n')
+print(string.punctuation)
+print()
+print('\033[92m')
+print(tweet_tokens)
+print('\033[94m')
+tweets_clean = []
+for word in tweet_tokens: # Go through every word in your tokens list
+    if (word not in stopwords_english and # remove stopwords
+        word not in string.punctuation): # remove punctuation
+            tweets_clean.append(word)
+print('removed stop words and punctuation:')
+print(tweets_clean)
 
-from nltk.stem.wordnet import WordNetLemmatizer
-nltk.download('wordnet')
-lem = WordNetLemmatizer()
-
-from nltk.stem.porter import PorterStemmer
-stem = PorterStemmer()
-
-word = "flying"
-print("Lemmatized Word:",lem.lemmatize(word,"v"))
-print("Stemmed Word:",stem.stem(word))
-
+print()
+print('\033[92m')
+print(tweets_clean)
+print('\033[94m')
+# Instantiate stemming class
+stemmer = PorterStemmer()
+# Create an empty list to store the stems
+tweets_stem = []
+for word in tweets_clean:
+    stem_word = stemmer.stem(word) # stemming word
+    tweets_stem.append(stem_word) # append to the list
+print('stemmed words:')
+print(tweets_stem)
