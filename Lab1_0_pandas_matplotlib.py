@@ -21,6 +21,7 @@ plt.scatter(data["Age"],data["Salary"])
 plt.show()
 
 plt.hist(data["Salary"], bins = 10, color = "blue")
+plt.show()
 
 plt.bar(data["Country"],data["Salary"],color="green")
 plt.xlabel("Country")
